@@ -1,4 +1,4 @@
-# Sport Analysis
+# Sport Activities
 
 A pragmatic Python toolkit to fetch and analyze your **Garmin Connect** workout data, with a clean data model and *correct pagination* (no missing activities).
 
@@ -42,4 +42,23 @@ This project takes a **defensive and reliable approach**:
 ---
 
 ## Project structure
+sport_activities/
+├── garmin_client.py
+├── config_private.py # credentials (NOT committed)
+├── test_models_and_parsing.py # unit tests (no network)
+├── test_integration_typed_summaries.py
+└── README.md
+
+
+## Data model
+Activities are converted into typed dataclasses:
+- ActivitySummaryBase
+- CyclingActivitySummary
+- RunningActivitySummary
+- SwimmingActivitySummary
+- nericActivitySummary
+
+Each object:
+- exposes normalized fields (distance, duration, speed, HR, power, …)
+- keeps the original Garmin payload in raw
 
