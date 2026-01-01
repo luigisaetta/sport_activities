@@ -53,3 +53,19 @@ Each object:
 - exposes normalized fields (distance, duration, speed, HR, power, …)
 - keeps the original Garmin payload in raw
 
+## Examples
+
+#### Show activities for the last 7 days
+```python
+from datetime import date, timedelta
+from garmin_client import get_activities_in_range
+
+end = date.today()
+start = end - timedelta(days=7)
+
+activities = get_activities_in_range(start, end)
+
+print(f"Fetched {len(activities)} activities")
+for a in activities:
+    print(a.type_key, a.activity_id)
+```
