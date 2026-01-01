@@ -17,7 +17,7 @@ Garmin Connect is tricky:
 - “Activity details” endpoints often return **partial or empty data**
 - Payloads vary a lot by **sport, device, and firmware**
 
-This project takes a **defensive and reliable approach**:
+This project takes a **reliable approach**:
 
 - **Activity summaries are the source of truth**
 - Pagination is **always handled**
@@ -51,12 +51,12 @@ sport_activities/
 
 
 ## Data model
-Activities are converted into typed dataclasses:
+**Activities** are converted into typed dataclasses:
 - ActivitySummaryBase
 - CyclingActivitySummary
 - RunningActivitySummary
 - SwimmingActivitySummary
-- nericActivitySummary
+- GenericActivitySummary
 
 Each object:
 - exposes normalized fields (distance, duration, speed, HR, power, …)
