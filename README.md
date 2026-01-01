@@ -69,3 +69,15 @@ print(f"Fetched {len(activities)} activities")
 for a in activities:
     print(a.type_key, a.activity_id)
 ```
+
+#### Show activities for a month as JSON
+```python
+from garmin_client import get_activities_in_range
+
+activities = get_activities_in_range("2025-06-01", "2025-06-30")
+
+payload = [a.to_dict() for a in activities[:3]]
+
+for p in payload:
+    print(p.keys())
+```
