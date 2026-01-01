@@ -41,15 +41,6 @@ This project takes a **reliable approach**:
 
 ---
 
-## Project structure
-sport_activities/
-├── garmin_client.py
-├── config_private.py # credentials (NOT committed)
-├── test_models_and_parsing.py # unit tests (no network)
-├── test_integration_typed_summaries.py
-└── README.md
-
-
 ## Data model
 **Activities** are converted into typed dataclasses:
 - ActivitySummaryBase
