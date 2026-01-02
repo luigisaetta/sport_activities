@@ -1,4 +1,7 @@
-#!/usr/bin/env python3
+"""
+Test integration: fetch activities in a date range and print typed summaries.
+"""
+
 from __future__ import annotations
 
 import sys
@@ -9,6 +12,15 @@ from garmin_client import get_activities_in_range
 
 
 def main() -> int:
+    """
+    Test integration: fetch activities in a date range and print typed summaries.
+    1) Usage: python test_integration_typed_summaries.py <start YYYY-MM-DD> <end YYYY-MM-DD>
+    2) Fetch activities in the given range
+    3) Print the number of activities and their type distribution
+    4) Print a summary line for each activity with type, id, name, date, distance, duration
+    5) Return 0 on success
+    """
+
     if len(sys.argv) != 3:
         print(
             "Usage: python test_integration_typed_summaries.py <start YYYY-MM-DD> <end YYYY-MM-DD>"
@@ -26,11 +38,11 @@ def main() -> int:
     # Print
     for a in acts:
         try:
+            # to handle problems with invalid timestamps
             dt = str(datetime.fromtimestamp(a.begin_timestamp / 1000, tz=timezone.utc))
 
-        except Exception as e:
+        except Exception:
             dt = "NA"
-            print(f"[ERROR] Could not print correctly activity {a.activity_id}: {e}")
 
         print(a.type_key, a.activity_id, a.activity_name, dt, a.distance, a.duration)
 

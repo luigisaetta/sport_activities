@@ -343,6 +343,24 @@ class ActivitySummaryBase:  # pylint: disable=too-many-instance-attributes
         """Stable dict representation (good for MCP)."""
         return asdict(self)
 
+    def to_public_dict(self, *, include_raw: bool = False) -> Dict[str, Any]:
+        """
+        Return a public, JSON-ready representation of the activity.
+
+        By default, the raw Garmin payload is excluded to keep the output clean
+        and suitable for UI, logging, or MCP responses.
+
+        Args:
+            include_raw: include the original Garmin payload if True
+
+        Returns:
+            dict suitable for JSON serialization
+        """
+        data = self.to_dict()
+        if not include_raw:
+            data.pop("raw", None)
+        return data
+
     @classmethod
     def from_summary(cls: Type[T], summary: Mapping[str, Any]) -> T:
         """Parse from a Garmin activity summary dict (defensive)."""
