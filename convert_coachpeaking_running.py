@@ -1,3 +1,8 @@
+"""
+takes data from coachpeaking running export txt file
+and converts it to a CSV with date and TRIMP columns
+"""
+
 import re
 import csv
 from pathlib import Path
@@ -70,4 +75,4 @@ def convert_file(input_path: str, output_csv: str = "coachpeaking_trimp.csv") ->
 
 if __name__ == "__main__":
     # modifica qui il nome del file di input
-    convert_file("coachpeaking_running.txt", "coachpeaking_trimp.csv")
+    convert_file("coachpeaking_running_2024_2025.txt", "coachpeaking_trimp_2024_2025.csv")

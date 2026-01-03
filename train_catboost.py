@@ -1,10 +1,10 @@
 """
-Train a LightGBM model to predict TRIMP from running activity data.
+Train a CatBoost model to predict TRIMP from running activity data.
+(Equivalent pipeline to the provided LightGBM script.)
 """
 import pandas as pd
 import numpy as np
-import lightgbm as lgb
-from lightgbm.callback import log_evaluation
+from catboost import CatBoostRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 import joblib
 
@@ -12,9 +12,9 @@ import joblib
 RANDOM_SEED = 42
 
 CSV_PATH = "running_activities_completed_gold_v1.csv"
-MODEL_PATH = "lgbm_trimp_model.joblib"
+MODEL_PATH = "catboost_trimp_model.joblib"
 
-# colonne da ignorare
+# columns to ignore
 DROP_COLS = ["activity_id", "end_time_gmt", "elapsed_duration", "max_speed", "avg_power"]
 TARGET_COL = "trimp"
 
@@ -23,35 +23,31 @@ def load_and_prepare(csv_path: str) -> tuple[pd.DataFrame, pd.Series]:
     """
     Load CSV and prepare features and target.
     """
-
     df = pd.read_csv(csv_path)
 
-    # check minimi
     missing = [c for c in DROP_COLS + [TARGET_COL] if c not in df.columns]
     if missing:
         raise ValueError(f"Missing columns in CSV: {missing}")
 
-    # ordina temporalmente (split time-aware)
+    # parse and sort by time for time-based splitting
     df["end_time_gmt"] = pd.to_datetime(df["end_time_gmt"], errors="coerce")
     if df["end_time_gmt"].isna().any():
         bad = df[df["end_time_gmt"].isna()][["activity_id", "end_time_gmt"]].head(10)
         raise ValueError(f"Unparseable end_time_gmt values. Examples:\n{bad}")
 
-    # sort by time in ascending order
-    # to enable time-based splitting
     df = df.sort_values("end_time_gmt").reset_index(drop=True)
 
     # target
     y = df[TARGET_COL]
 
-    # features: tutte le colonne tranne drop + target
+    # features: all columns except drop + target
     X = df.drop(columns=DROP_COLS + [TARGET_COL])
 
-    # converti a numerico (se per caso arrivano stringhe)
+    # ensure numeric
     for col in X.columns:
         X[col] = pd.to_numeric(X[col], errors="coerce")
 
-    # rimuovi righe senza target
+    # drop rows without target
     mask = y.notna()
     X = X.loc[mask].reset_index(drop=True)
     y = y.loc[mask].reset_index(drop=True)
@@ -64,7 +60,6 @@ def time_split(X: pd.DataFrame, y: pd.Series, test_frac: float = 0.2):
     Time-based split into train and test sets.
     The last `test_frac` fraction of data is used as test set.
     """
-
     n = len(X)
     if n < 20:
         raise ValueError(f"Too few rows ({n}) to train reliably. Need more data.")
@@ -75,36 +70,29 @@ def time_split(X: pd.DataFrame, y: pd.Series, test_frac: float = 0.2):
     return X_train, X_test, y_train, y_test
 
 
-def train_lgbm(X_train, y_train, X_val, y_val):
+def train_catboost(X_train, y_train, X_val, y_val, log_every: int = 10):
     """
-    Train LightGBM model with early stopping.
+    Train CatBoost model with early stopping and periodic logging.
     """
-    model = lgb.LGBMRegressor(
-        objective="regression",
-        n_estimators=5000,
+    # CatBoost handles NaNs; keep them if present.
+    model = CatBoostRegressor(
+        loss_function="MAE",        # optimize MAE (L1)
+        eval_metric="MAE",          # choose best iteration by MAE
+        iterations=5000,
         learning_rate=0.02,
-        num_leaves=31,
-        max_depth=-1,
-        min_child_samples=20,
-        subsample=0.8,
-        colsample_bytree=0.8,
-        reg_alpha=0.0,
-        reg_lambda=0.0,
-        random_state=RANDOM_SEED,
-        verbosity=-1,
+        depth=6,                    # roughly comparable complexity to num_leaves~31
+        random_seed=RANDOM_SEED,
+        od_type="Iter",             # overfitting detector
+        od_wait=500,                # early stopping patience (like stopping_rounds)
+        verbose=log_every,          # print every N iterations
+        allow_writing_files=False,  # avoid catboost_info/ output
     )
 
     model.fit(
         X_train,
         y_train,
-        eval_set=[(X_val, y_val)],
-        # MAE
-        eval_metric="l1",
-        callbacks=[
-            lgb.early_stopping(stopping_rounds=500, verbose=True),
-            # PRINT EVERY 100 ITERATIONS
-            log_evaluation(period=10),  
-        ],
+        eval_set=(X_val, y_val),
+        use_best_model=True
     )
     return model
 
@@ -113,7 +101,6 @@ def evaluate(model, X_test, y_test):
     """
     Evaluate model on test set and print metrics.
     """
-
     pred = model.predict(X_test)
 
     mae = mean_absolute_error(y_test, pred)
@@ -123,7 +110,6 @@ def evaluate(model, X_test, y_test):
     print(f"MAE : {mae:.3f}")
     print(f"R2  : {r2:.3f}")
 
-    # sanity check: range
     print(f"\nTRIMP true range: [{y_test.min():.1f}, {y_test.max():.1f}]")
     print(f"TRIMP pred range: [{pred.min():.1f}, {pred.max():.1f}]")
 
@@ -132,9 +118,11 @@ def show_feature_importance(model, feature_names):
     """
     Show feature importance from trained model.
     """
-    imp = pd.DataFrame(
-        {"feature": feature_names, "importance": model.feature_importances_}
-    ).sort_values("importance", ascending=False)
+    # PredictionValuesChange is a stable default for regression
+    importances = model.get_feature_importance(type="PredictionValuesChange")
+    imp = pd.DataFrame({"feature": feature_names, "importance": importances}).sort_values(
+        "importance", ascending=False
+    )
 
     print("\n=== Feature importance ===")
     print(imp.to_string(index=False))
@@ -144,7 +132,6 @@ def main():
     """
     Main training pipeline.
     """
-
     TEST_FRAC = 0.1
 
     X, y = load_and_prepare(CSV_PATH)
@@ -160,17 +147,18 @@ def main():
     print("")
     print("===============\n")
 
-    print("Training LightGBM model...")
-    model = train_lgbm(X_train, y_train, X_test, y_test)
+    print("Training CatBoost model...")
+    model = train_catboost(X_train, y_train, X_test, y_test, log_every=10)
     print("")
 
     print("Evaluating model...")
     evaluate(model, X_test, y_test)
     print("")
 
-    show_feature_importance(model, X.columns)
+    show_feature_importance(model, list(X.columns))
 
-    # save model
+    # Save model
+    # CatBoost models can be saved with model.save_model(...), but joblib works too for python usage.
     joblib.dump(model, MODEL_PATH)
     print(f"\nSaved model to: {MODEL_PATH}\n")
 

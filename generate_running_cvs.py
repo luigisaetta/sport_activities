@@ -21,7 +21,7 @@ RUNNING_FEATURES = [
 
 
 def export_running_activities_to_csv(
-    activities: list[dict], output_csv: str = "running_activities.csv"
+    activities: list[dict], output_csv: str = "running_activities_2024_2025.csv"
 ):
     """
     Filter running activities and export selected features to CSV.
@@ -47,7 +47,9 @@ def export_running_activities_to_csv(
 if __name__ == "__main__":
     # here we specify the range of activities to fetch
     # for now only 2025 activities
-    activities = get_activities_in_range("2025-01-01", "2026-01-01")
+
+    # to try with more data...
+    activities = get_activities_in_range("2024-01-01", "2026-01-03")
 
     activities = [a.to_public_dict() for a in activities]
 

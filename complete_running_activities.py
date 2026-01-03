@@ -61,7 +61,7 @@ def add_trimp_to_running(
 
 if __name__ == "__main__":
     add_trimp_to_running(
-        running_csv="running_activities.csv",
-        coach_trimp_csv="coachpeaking_trimp.csv",
-        output_csv="running_activities_completed.csv",
+        running_csv="running_activities_2024_2025.csv",
+        coach_trimp_csv="coachpeaking_trimp_2024_2025.csv",
+        output_csv="running_activities_completed_2024_2025.csv",
     )
