@@ -197,9 +197,9 @@ The workflow is intentionally conservative:
 ## Dataset Preparation (Gold Version)
 
 Model training uses a curated dataset:
-
-<dataset.csv>
-
+```
+running_activities_completed_gold_v1.csv
+```
 
 ### Key characteristics
 - Years included: **2024–2025**
