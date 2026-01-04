@@ -77,10 +77,17 @@ from garmin_client import get_activities_in_range
 
 activities = get_activities_in_range("2025-06-01", "2025-06-30")
 
-payload = [a.to_dict() for a in activities[:3]]
+payload = [a.to_public_dict() for a in activities[:3]]
 
 print(json.dumps(payload, indent=2, ensure_ascii=False))
 ```
+**Activities' types:**
+- running
+- road_biking
+- indoor_cycling
+- virtual_ride
+- lap_swimming
+- yoga
 
 ## Public API (garmin_client.py)
 
