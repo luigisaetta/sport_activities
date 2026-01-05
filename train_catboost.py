@@ -53,7 +53,14 @@ def train_catboost(X_train, y_train, X_val, y_val, log_every: int = 10):
 
 
 def show_feature_importance(model, feature_names):
-
+    """
+    Show feature importance from the trained Catboost model.
+    Parameters:
+        model: Trained LightGBM model.
+        feature_names: List of feature names.
+    Returns:
+        None
+    """
     importances = model.get_feature_importance(type="PredictionValuesChange")
     imp = pd.DataFrame({"feature": feature_names, "importance": importances})
     imp = imp.sort_values("importance", ascending=False)

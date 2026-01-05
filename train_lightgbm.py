@@ -23,7 +23,8 @@ MODEL_PATH = "lgbm_trimp_model.joblib"
 
 # Decide once: if you are dropping distance, do it for both scripts
 DROP_COLS = COMMON_DROP_COLS + [
-    "distance",  # keep/remove consistently across both trainers
+    # remove distance, improve results slightly
+    "distance",
 ]
 
 
