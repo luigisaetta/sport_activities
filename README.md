@@ -38,6 +38,7 @@ This project takes a **reliable approach**:
   - Generic fallback
 - ✅ Numeric normalization (rounded to 2 decimals)
 - ✅ Clean API, MCP-friendly output
+- ✅ ML models to predict TRIMP
 
 ---
 
