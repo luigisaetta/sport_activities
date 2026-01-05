@@ -11,6 +11,9 @@ DATE_RE = re.compile(r"^\s*(\d{2}/\d{2}/\d{4})\s*$")
 
 
 def is_data_line(line: str) -> bool:
+    """
+    Detect if the line contains a duration and a TRIMP number.
+    """
     # riconosce la riga che contiene una durata (mm:ss o hh:mm:ss) seguita da un numero (TRIMP)
     # es: "9.05 km - 47:18 104 116 %"
     return bool(re.search(r"\b(\d{1,2}:\d{2}(?::\d{2})?)\b", line)) and bool(
@@ -20,11 +23,12 @@ def is_data_line(line: str) -> bool:
 
 def extract_trimp(line: str) -> int | None:
     """
-    Estrae il TRIMP come 'numero subito dopo la durata'.
-    Esempio: "... 47:18 104 116 %" -> 104
-             "... 01:07:36 138 103 %" -> 138
-             "... 11:50 19" -> 19
+    Extracts the TRIMP as the number immediately following the duration.
+    Example: "... 47:18 104 116 %" -> 104
+            "... 01:07:36 138 103 %" -> 138
+            "... 11:50 19" -> 19
     """
+
     m = re.search(r"\b(\d{1,2}:\d{2}(?::\d{2})?)\s+(\d+)\b", line)
     if not m:
         return None
@@ -32,6 +36,15 @@ def extract_trimp(line: str) -> int | None:
 
 
 def convert_file(input_path: str, output_csv: str = "coachpeaking_trimp.csv") -> None:
+    """
+    Convert coachpeaking running export txt file to CSV with date and TRIMP columns.
+    Parameters:
+        input_path: Path to the input txt file.
+        output_csv: Path to the output CSV file.
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If no TRIMP entries are found in the input file.
+    """
     in_path = Path(input_path)
     if not in_path.exists():
         raise FileNotFoundError(f"File not found: {input_path}")
@@ -75,4 +88,6 @@ def convert_file(input_path: str, output_csv: str = "coachpeaking_trimp.csv") ->
 
 if __name__ == "__main__":
     # modifica qui il nome del file di input
-    convert_file("coachpeaking_running_2024_2025.txt", "coachpeaking_trimp_2024_2025.csv")
+    convert_file(
+        "coachpeaking_running_2024_2025.txt", "coachpeaking_trimp_2024_2025.csv"
+    )

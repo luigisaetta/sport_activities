@@ -1,3 +1,7 @@
+"""
+Export running activities from Garmin Connect to CSV.
+"""
+
 import csv
 
 from garmin_client import get_activities_in_range

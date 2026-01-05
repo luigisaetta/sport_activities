@@ -1,3 +1,7 @@
+"""
+Add CoachPeaking TRIMP to running activities CSV from Garmin.
+"""
+
 import pandas as pd
 
 
@@ -6,6 +10,13 @@ def add_trimp_to_running(
     coach_trimp_csv: str = "coachpeaking_trimp.csv",
     output_csv: str = "running_activities_completed.csv",
 ) -> None:
+    """
+    Add CoachPeaking TRIMP values to running activities CSV from Garmin.
+    Parameters:
+        running_csv: Path to CSV with running activities exported from Garmin.
+        coach_trimp_csv: Path to CSV with CoachPeaking TRIMP data (date,trimp).
+        output_csv: Path to output CSV with TRIMP values added.
+    """
     # --- Load running activities ---
     g = pd.read_csv(running_csv)
 
