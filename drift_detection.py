@@ -1,5 +1,5 @@
 """
-ks_drift_test.py
+drift_detection.py
 
 Run Kolmogorov–Smirnov tests to detect distribution drift
 between 2024 and 2025 for numeric features.
