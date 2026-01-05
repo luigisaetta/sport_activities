@@ -294,7 +294,8 @@ For these reasons, **CatBoost is considered the current “gold” model**.
 | Model      | MAE ↓ | R² ↑ | Notes |
 |------------|------:|-----:|-------|
 | LightGBM   | ~11.4 | 0.74 | Strong baseline |
-| CatBoost   | **~10.4** | **0.77** | Best overall |
+| CatBoost   | **~10.4** | **0.77** | good |
+| LightGBM (removing distance)   | **~10.1** | **0.80** | **best** |
 
 The improvement is modest but **consistent and meaningful** given:
 - noisy real-world physiological data
